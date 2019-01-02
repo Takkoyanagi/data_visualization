@@ -1,0 +1,66 @@
+---
+title: "Data Visualization Capstone Project"
+author: "Tak Koyanagi"
+date: "January 1, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(ggthemes)
+library(tidyverse)
+df <- read.csv("Economist_Assignment_Data.csv")
+
+pointsToLabel <- c("Russia", "Venezuela", "Iraq", "Myanmar", "Sudan",
+                   "Afghanistan", "Congo", "Greece", "Argentina", "Brazil",
+                   "India", "Italy", "China", "South Africa", "Spane",
+                   "Botswana", "Cape Verde", "Bhutan", "Rwanda", "France",
+                   "United States", "Germany", "Britain", "Barbados", "Norway", "Japan",
+                   "New Zealand", "Singapore")
+```
+
+# This visualization project is from a course titled, <i>R for Data Science and Machine Learning</i> taught by Jose Portilla to analyze the global corruption and human development data.
+## Let's take a look at the data
+
+```{r}
+head(df)
+# remove column X
+df <- select(df,-X)
+head(df)
+```
+
+## Now we will create a scatter plot, change the color to represent 'Region', change the shapes to 'not filled', and size of the points
+
+```{r}
+pl <- ggplot(df, aes(x=CPI, y=HDI)) + geom_point(aes(color = Region), size = 3, shape = 1)
+print(pl)
+```
+
+## Next, we will fit a red trendline to the scatter plot visualize the data better
+
+```{r}
+pl2 <- pl + geom_smooth(aes(group=1), method= 'lm', formula = y~log(x), se = FALSE, color = 'red')
+print(pl2)
+```
+
+## We will continue to add labels to the data points that represent the names of select countries of regions
+
+```{r}
+pl3 <- pl2 + geom_text(aes(label=Country), color='gray20',
+                       data = subset(df, Country %in% pointsToLabel), check_overlap = TRUE) +
+                                theme_economist_white()
+print(pl3)
+```
+
+## Lastly, we finish off by adding  the axis labels, adjust scale, and title
+
+```{r}
+pl4 <- pl3 + scale_x_continuous(name = 'Corruption Perceptions Index, 2011 (10=least corrupt)',                                limits = c(1,10), breaks=1:10) +
+        scale_y_continuous(name = 'Human Development Index, 2011 (1 = Best)', 
+                           limits = c(0.2,1.0), breaks=c(0.2, 0.4, 0.6, 0.8,1.0)) +
+        ggtitle('Corruption and Human Development')
+print(pl4)
+```
+
+# Conclusion: Looks like there is a high correlation between regions with a low human development index and corruption perceptions index. Specifically, the data reveals the South Saharian Africa (SSA) data resides primarily in the lower left quadrant, whereas, Americas and EU resides in the ideal top right quadrant. To end, through the project, we were able to make a very nice visualization of the corruption and human development data that is both informative and aesthetically appealing. 
